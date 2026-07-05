@@ -1,7 +1,15 @@
 import { examQuestions, topicLabels } from "@/lib/exam-data";
+import {
+  formatDuration,
+  getAverageMs,
+  getTimedQuestions,
+  getTotalElapsedMs,
+  type ExamAnalytics,
+} from "@/lib/exam-analytics";
 
 type ProgressSummaryProps = {
   answers: Record<number, number>;
+  analytics: ExamAnalytics;
 };
 
 export function getTopicStats(answers: Record<number, number>) {
@@ -23,7 +31,7 @@ export function getTopicStats(answers: Record<number, number>) {
   });
 }
 
-export function ProgressSummary({ answers }: ProgressSummaryProps) {
+export function ProgressSummary({ answers, analytics }: ProgressSummaryProps) {
   const answeredCount = Object.keys(answers).length;
   const correctCount = examQuestions.filter(
     (question) => answers[question.id] === question.correctIndex,
@@ -31,6 +39,8 @@ export function ProgressSummary({ answers }: ProgressSummaryProps) {
   const score = answeredCount ? Math.round((correctCount / examQuestions.length) * 100) : 0;
   const topicStats = getTopicStats(answers);
   const weakAreas = topicStats.filter((stat) => stat.answered === stat.total && stat.score < 70);
+  const timedQuestions = getTimedQuestions(analytics);
+  const totalElapsedMs = getTotalElapsedMs(analytics);
 
   return (
     <aside className="score-panel" aria-label="Practice exam progress">
@@ -44,6 +54,17 @@ export function ProgressSummary({ answers }: ProgressSummaryProps) {
         </div>
         <div className="meter" aria-hidden="true">
           <span style={{ width: `${score}%` }} />
+        </div>
+      </div>
+
+      <div className="live-timing">
+        <div>
+          <span>Elapsed</span>
+          <strong>{formatDuration(totalElapsedMs)}</strong>
+        </div>
+        <div>
+          <span>Avg/question</span>
+          <strong>{formatDuration(getAverageMs(timedQuestions))}</strong>
         </div>
       </div>
 

@@ -1,13 +1,16 @@
 import { examQuestions, topicLabels } from "@/lib/exam-data";
+import type { ExamAnalytics } from "@/lib/exam-analytics";
+import { ExamReport } from "./exam-report";
 import { ProgressSummary } from "./progress-summary";
 
 type ExamPanelProps = {
   answers: Record<number, number>;
+  analytics: ExamAnalytics;
   onAnswer: (questionId: number, optionIndex: number) => void;
   onReset: () => void;
 };
 
-export function ExamPanel({ answers, onAnswer, onReset }: ExamPanelProps) {
+export function ExamPanel({ answers, analytics, onAnswer, onReset }: ExamPanelProps) {
   const answeredCount = Object.keys(answers).length;
 
   return (
@@ -82,9 +85,11 @@ export function ExamPanel({ answers, onAnswer, onReset }: ExamPanelProps) {
             </section>
           );
         })}
+
+        <ExamReport answers={answers} analytics={analytics} />
       </div>
 
-      <ProgressSummary answers={answers} />
+      <ProgressSummary answers={answers} analytics={analytics} />
     </section>
   );
 }
